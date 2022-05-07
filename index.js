@@ -14,52 +14,50 @@ app.use(express.json())
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_KEY}@cluster0.offi7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-async function run(){
-try{
-    await client.connect();
-    const ProductCollection = client.db('emaZone').collection('product');
+async function run() {
+    try {
+        await client.connect();
+        const productCollection = client.db('rolls-royce-parts').collection('spare-parts');
 
-    app.get('/product', async (req, res)=>{
-        const page =parseInt(req.query.page)
-        const size =parseInt(req.query.size)
-        const query ={}
-        const cursor = ProductCollection.find(query);
-        let product;
-        if(page || size){
-            Products =await cursor.skip(page*size).limit(size).toArray();
-        }
-        else{
-            Products =await cursor.toArray();
-        }
-        res.send(Products)
-    })
-    app.get('/productcount', async (req, res)=>{
-        // const query ={}
-        // const cursor = ProductCollection.find(query);
-
-        const count =await ProductCollection.estimatedDocumentCount();
-        res.send({count})
-
-        app.post('/productBykeys', async (req, res)=>{
-            const keys =req.body;
-            const ids = keys.map(id=>Object(id))
-            const query ={_id:{$in: ids}}
-            const cursor = ProductCollection.find(query);
-            Products =await cursor.toArray();
+        app.get('/product', async (req, res) => {
+            const page = parseInt(req.query.page)
+            const size = parseInt(req.query.size)
+            const query = {}
+            const cursor = productCollection.find(query);
+            Products = await cursor.toArray();
             res.send(Products)
-            console.log(keys)
-        } )
-    })
-}
-finally{
+        })
+        app.get('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const query = { _id: ObjectId(id) };
+            const product = await productCollection.findOne(query);
+            res.send(product);
+            console.log(id)
+        });
+        app.post('/product', async (req, res) => {
+            const newProduct = req.body;
+            console.log(newProduct)
+            const result = await productCollection.insertOne(newProduct);
+            res.send(result);
+        });
+        app.delete('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productCollection.deleteOne(query);
+            console.log(id)
+            res.send(result);
+        });
+    }
+    finally {
 
-}
+    }
 }
 run().catch(console.dir);
-app.get('/', (req, res) =>{
-    res.send('amajhon is running')
+app.get('/', (req, res) => {
+    res.send('Core inventory mgt')
 })
 
-app.listen(port, ()=>{
-    console.log('jhon is running at port:', port)
+app.listen(port, () => {
+    console.log('Core inventory mgt is running at port:', port)
 })
