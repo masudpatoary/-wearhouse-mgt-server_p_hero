@@ -48,6 +48,20 @@ async function run() {
             console.log(id)
             res.send(result);
         });
+
+        app.put('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const updatedQty = Number(req.body.Quantity);
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    quantity: parseInt(updatedQty.Quantity)
+                }
+            }
+            const result = await productCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        })
     }
     finally {
 
