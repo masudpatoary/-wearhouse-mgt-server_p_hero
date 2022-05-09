@@ -70,7 +70,7 @@ async function run() {
 }
 run().catch(console.dir);
 app.get('/', (req, res) => {
-    res.send('Core inventory mgt')
+    res.send('Core inventory mgt is running successfully')
 })
 
 app.listen(port, () => {
